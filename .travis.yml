@@ -11,8 +11,8 @@ before_script:
 
 deploy:
 - provider: s3
-  access_key_id: $AKIA2R7KBNBX5AJI6HCK
-  secret_access_key: $nSE5EXBfqk3abYZJNEbiUEWL79IXDb0XHYCRDjcV
+  access_key_id: AKIA2R7KBNBX5AJI6HCK
+  secret_access_key: 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
   local_dir: dpl_cd_upload
   skip_cleanup: true
   on: &2
