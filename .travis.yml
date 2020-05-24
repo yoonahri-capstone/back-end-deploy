@@ -8,6 +8,7 @@ install:
 before_script:
   - cd memsite
   - python manage.py makemigrations
+  - cd ..
 
 deploy:
 - provider: s3
