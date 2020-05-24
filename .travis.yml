@@ -26,7 +26,7 @@ deploy:
   key: latest.zip
   bundle_type: zip
   application: memmem
-  deployment_group: memmem_deploy
+  deployment_group: memmem-deploy
   region: ap-northeast-2
   on: *2
 
