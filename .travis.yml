@@ -36,4 +36,3 @@ script:
   - mv latest.zip dpl_cd_upload/latest.zip
   - python manage.py migrate
   - python manage.py test
-  - cd ..
