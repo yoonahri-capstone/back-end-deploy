@@ -16,7 +16,7 @@ deploy:
   local_dir: dpl_cd_upload
   skip_cleanup: true
   on: &2
-    repo: ahyen/yoonahri-capstone/back-end-deploy
+    repo: yoonahri-capstone/back-end-deploy
   bucket: memmembucket
   region: ap-northeast-2
 - provider: codedeploy
