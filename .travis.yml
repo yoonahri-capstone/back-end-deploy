@@ -8,7 +8,6 @@ install:
 before_script:
   - cd memsite
   - python manage.py makemigrations
-  - cd ..
 
 deploy:
 - provider: s3
@@ -37,3 +36,4 @@ script:
   - mv latest.zip dpl_cd_upload/latest.zip
   - python manage.py migrate
   - python manage.py test
+  - cd ..
