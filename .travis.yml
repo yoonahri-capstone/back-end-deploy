@@ -1,0 +1,34 @@
+language: python
+python:
+  - "3.6"
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - python manage.py makemigrations
+
+deploy:
+- provider: s3
+  access_key_id: $AKIA2R7KBNBX5AJI6HCK
+  secret_access_key: $nSE5EXBfqk3abYZJNEbiUEWL79IXDb0XHYCRDjcV
+  local_dir: dpl_cd_upload
+  skip_cleanup: true
+  on: &2
+    repo: ahyen/yoonahri-capstone/back-end-deploy
+  bucket: memmembucket
+  region: ap-northeast-2
+- provider: codedeploy
+  access_key_id: $AKIA2R7KBNBX5AJI6HCK
+  secret_access_key: $nSE5EXBfqk3abYZJNEbiUEWL79IXDb0XHYCRDjcV
+  bucket: memmembucket
+  key: latest.zip
+  bundle_type: zip
+  application: memmem
+  deployment_group: memmem_deploy
+  region: ap-northeast-2
+  on: *2
+
+script:
+  - python manage.py migrate
+  - python manage.py test
