@@ -20,8 +20,8 @@ deploy:
   bucket: memmembucket
   region: ap-northeast-2
 - provider: codedeploy
-  access_key_id: $AKIA2R7KBNBX5AJI6HCK
-  secret_access_key: $nSE5EXBfqk3abYZJNEbiUEWL79IXDb0XHYCRDjcV
+  access_key_id: AKIA2R7KBNBX5AJI6HCK
+  secret_access_key: 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
   bucket: memmembucket
   key: latest.zip
   bundle_type: zip
