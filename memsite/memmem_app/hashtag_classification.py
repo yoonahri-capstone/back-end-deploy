@@ -5,7 +5,7 @@ from math import sin, cos, sqrt, atan2, radians
 
 
 def requestJson(text):
-    accessKey = ""
+    accessKey = "cee6cc42-ce90-46d8-96be-98495c554d25"
     analysisCode = "ner"
 
     requestJson = {
@@ -26,11 +26,12 @@ def get_tag(requestJson):
     try:
         tag = data['return_object']['sentence'][0]['NE'][0]['type']
     except:
-        tag = input
+        tag = [input]
     return tag
 
 
-API_KEY = ""
+API_KEY = "AIzaSyCqzqvv8VfaPZMg0JimBKSvygDO5KWec4E"
+
 
 def get_geocode(address):
     try:
@@ -63,24 +64,19 @@ def get_distance(lat1, lng1, lat2, lng2):    #km 단위
     return distance
 
 
-def classify_tag(tag, input):
+def tag_classifier(input):
+    place_list = []
+    food_list = []
+    tag = get_tag(requestJson(input))
+
     if "LC" in tag or "OG" in tag:
         place_list.append(input)
         place_list.append(get_geocode(input))
         return place_list
 
-    elif tag == "CV_FOOD":
+    elif "CV_FOOD" in tag:
         food_list.append(input)
         return food_list
 
-    # elif
-
-if __name__ == "__main__":
-    input = "연트럴파크"
-    place_list = []
-    food_list = []
-    file_name = './place_name.txt'
-    file = open(file_name)
-    # print(file.read())
-    tag = get_tag(requestJson(input))
-    print(classify_tag(tag, input))
+    else:
+        return None

@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import tldextract
 import time
+import os
 
 # URL = "https://www.instagram.com/p/B-lp4yghq5F/?utm_source=ig_web_copy_link"
 # URL = "https://www.facebook.com/518619241508393/posts/2827717197265241/?sfnsn=mo"
@@ -116,6 +117,7 @@ def hashtag_crawl():
         if "#" in hashtag:
             hashtag_list.append(hashtag)
     return hashtag_list
+
     
 def crawl_request(request):
     global driver, URL, html, soup
@@ -135,7 +137,9 @@ def crawl_request(request):
                                                         'metro_switch_to_desktop': 2, 'protected_media_identifier': 2,
                                                         'app_banner': 2, 'site_engagement': 2, 'durable_storage': 2}}
     chrome_options.add_experimental_option('prefs', prefs)
-    driver = webdriver.Chrome('C:/Users/yoonhee/Desktop/back-end3/back-end/memsite/memmem_app/chromedriver.exe', options=chrome_options)
+    driver_path = os.path.abspath('memmem_app/chromedriver.exe')
+    driver_path = driver_path.replace('\\', '/')
+    driver = webdriver.Chrome(driver_path, options=chrome_options)
     driver.implicitly_wait(5)
 
     # no error 가정

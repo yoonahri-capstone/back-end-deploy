@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from .hashtag_classification import tag_classifier
 
 '''
 class MyUserManager(BaseUserManager):
@@ -132,3 +133,51 @@ class Tag(models.Model):
 
     def create(self, validated_data):
         return Tag.objects.create(**validated_data)
+
+    def save(self, *args, **kwargs):
+        super(Tag, self).save(*args, **kwargs)
+
+        tag_text = self.tag_text.replace("#", "")
+        classifier = tag_classifier(tag_text)
+
+        print(classifier)
+        if classifier is None:
+            pass
+        elif len(classifier) == 2:
+            if classifier[1] is None:
+                pass
+            else:
+                name = classifier[0]
+                latitude = classifier[1][0]
+                longitude = classifier[1][1]
+                Place.objects.create(name=name,
+                                     latitude=latitude,
+                                     longitude=longitude,
+                                     tag=self)
+        elif len(classifier) == 1:
+            Food.objects.create(tag=self)
+        else:
+            print('err')
+
+
+class Place(models.Model):
+    place_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    tag = models.ForeignKey(Tag,
+                            on_delete=models.CASCADE,
+                            related_name="places")
+
+    def create(self, validated_data):
+        return Place.objects.create(**validated_data)
+
+
+class Food(models.Model):
+    food_id = models.AutoField(primary_key=True)
+    tag = models.ForeignKey(Tag,
+                            on_delete=models.CASCADE,
+                            related_name="food")
+    
+    def create(self, validated_data):
+        return Food.objects.create(**validated_data)

@@ -6,6 +6,9 @@ from .models import Folder
 from .models import Scrap
 from .models import Memo
 from .models import Tag
+from .models import Place
+from .models import Food
+
 
 # Register your models here.
 
@@ -26,3 +29,5 @@ admin.site.register(Folder)
 admin.site.register(Scrap)
 admin.site.register(Memo)
 admin.site.register(Tag)
+admin.site.register(Place)
+admin.site.register(Food)
