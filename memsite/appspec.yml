@@ -10,8 +10,13 @@ permissions:
     owner: ubuntu
     group: ubuntu
 
+
 hooks:
-ApplicationStart:
-  - location : deploy.sh
-    timeout: 300
-    runas: ubuntu
+  AfterInstall: # 배포가 끝나면 아래 명령어를 실행
+    - location: deploy.sh
+      timeout: 180
+# hooks:
+#   AfterInstall: 
+#   - location : deploy.sh
+#     timeout: 300
+#     runas: ubuntu
