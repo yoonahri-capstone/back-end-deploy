@@ -1,4 +1,3 @@
 #!/bin/sh
 
-python3 manage.py migrate
-python3 manage.py runserver
+python manage.py runserver 13.125.69.177:8000:
