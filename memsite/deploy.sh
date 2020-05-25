@@ -1,3 +1,7 @@
 #!/bin/sh
-pip install -r requirements.txt
-python manage.py runserver 13.125.69.177:8000
+
+cd /home/ubuntu/app
+pyenv global ec2_deploy
+pip3 install -r requirements.txt
+pip3 install --upgrade pip
+python3 manage.py runserver 0:8080
