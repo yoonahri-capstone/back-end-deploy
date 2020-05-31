@@ -138,10 +138,10 @@ def crawl_request(request):
                                                         'app_banner': 2, 'site_engagement': 2, 'durable_storage': 2}}
     chrome_options.add_experimental_option('prefs', prefs)
     # driver_path = os.path.abspath('memmem_app/chromedriver.exe')
-    driver_path = os.path.abspath('/home/ubuntu/app/memmem_app/chromedriver.exe')
+    driver_path = '/home/ubuntu/app/memmem_app/chromedriver.exe'
 
     driver_path = driver_path.replace('\\', '/')
-    driver = webdriver.Chrome(driver_path, options=chrome_options)
+    driver = webdriver.Chrome(executable_path = driver_path, options=chrome_options)
     driver.implicitly_wait(5)
 
     # no error 가정
