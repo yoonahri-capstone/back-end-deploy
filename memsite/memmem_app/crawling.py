@@ -56,10 +56,14 @@ def url_crawl(soup):
             title = soup.head.title.text
             title = title.replace('\n', ' ')
 
-        try:
-            thumbnail = soup.find("meta", {"property": "og:image"}).get("content")
-        except:
-            thumbnail = None
+        if domain == 'instagram':
+            thumbnail = soup.select_one(".KL4Bh").img['src']
+        else:
+            try:
+                thumbnail = soup.find("meta", {"property": "og:image"}).get("content")
+            except:
+                thumbnail = None
+
         save_list.append(URL)
         save_list.append(title)
         save_list.append(thumbnail)
