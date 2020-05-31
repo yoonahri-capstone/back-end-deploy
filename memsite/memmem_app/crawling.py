@@ -21,6 +21,22 @@ def url_crawl(soup):
     domain = extracted.domain
 
     if domain == 'instagram':
+        
+        driver.get("https://www.instagram.com/accounts/login/?hl=en")
+
+        id = ''
+        password = ''
+        id_input = driver.find_element_by_css_selector('#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
+        id_input.send_keys(id)
+        password_input = driver.find_element_by_css_selector('#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
+        password_input.send_keys(password)
+        password_input.submit()
+
+        time.sleep(3)
+        driver.get(CURRENT_URL)
+        html = driver.page_source
+
+        soup = BeautifulSoup(html, 'lxml')
         try:
             if "비공개 계정입니다" in soup.find('h2', {"class": "rkEop"}):
                 # print("비공개 계정입니다")
@@ -124,6 +140,7 @@ def crawl_request(request):
 
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('headless')
+    chrome_options.add_argument("lang=ko_KR")
     chrome_options.add_argument("disable-gpu")
     chrome_options.add_argument("disable-infobars")
     chrome_options.add_argument("--disable-extensions")
@@ -138,11 +155,12 @@ def crawl_request(request):
                                                         'app_banner': 2, 'site_engagement': 2, 'durable_storage': 2}}
     chrome_options.add_experimental_option('prefs', prefs)
     # driver_path = os.path.abspath('memmem_app/chromedriver_windossw.exe')
-    driver_path = '/home/ubuntu/chromedriver.exe'
+    # driver_path = '/home/ubuntu/chromedriver.exe'
 
     # driver_path = driver_path.replace('\\', '/')
-    driver = webdriver.Chrome(executable_path = driver_path, options=chrome_options)
-    driver.implicitly_wait(5)
+    # driver = webdriver.Chrome(executable_path = driver_path, options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.implicitly_wait(10)
 
     # no error 가정
     URL = request
