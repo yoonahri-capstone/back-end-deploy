@@ -142,25 +142,26 @@ def crawl_request(request):
     chrome_options.add_argument('headless')
     chrome_options.add_argument("lang=ko_KR")
     chrome_options.add_argument("disable-gpu")
-    chrome_options.add_argument("disable-infobars")
-    chrome_options.add_argument("--disable-extensions")
-    prefs = {'profile.default_content_setting_values': {'cookies': 2, 'images': 2, 'plugins': 2, 'popups': 2,
-                                                        'geolocation': 2, 'notifications': 2,
-                                                        'auto_select_certificate': 2, 'fullscreen': 2, 'mouselock': 2,
-                                                        'mixed_script': 2, 'media_stream': 2, 'media_stream_mic': 2,
-                                                        'media_stream_camera': 2, 'protocol_handlers': 2,
-                                                        'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2,
-                                                        'push_messaging': 2, 'ssl_cert_decisions': 2,
-                                                        'metro_switch_to_desktop': 2, 'protected_media_identifier': 2,
-                                                        'app_banner': 2, 'site_engagement': 2, 'durable_storage': 2}}
-    chrome_options.add_experimental_option('prefs', prefs)
+    # chrome_options.add_argument("disable-infobars")
+    # chrome_options.add_argument("--disable-extensions")
+    # prefs = {'profile.default_content_setting_values': {'cookies': 2, 'images': 2, 'plugins': 2, 'popups': 2,
+    #                                                     'geolocation': 2, 'notifications': 2,
+    #                                                     'auto_select_certificate': 2, 'fullscreen': 2, 'mouselock': 2,
+    #                                                     'mixed_script': 2, 'media_stream': 2, 'media_stream_mic': 2,
+    #                                                     'media_stream_camera': 2, 'protocol_handlers': 2,
+    #                                                     'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2,
+    #                                                     'push_messaging': 2, 'ssl_cert_decisions': 2,
+    #                                                     'metro_switch_to_desktop': 2, 'protected_media_identifier': 2,
+    #                                                     'app_banner': 2, 'site_engagement': 2, 'durable_storage': 2}}
+    # chrome_options.add_experimental_option('prefs', prefs)
     # driver_path = os.path.abspath('memmem_app/chromedriver_windossw.exe')
     # driver_path = '/home/ubuntu/chromedriver.exe'
 
     # driver_path = driver_path.replace('\\', '/')
     # driver = webdriver.Chrome(executable_path = driver_path, options=chrome_options)
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
     driver = webdriver.Chrome(options=chrome_options)
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(20)
 
     # no error 가정
     URL = request
