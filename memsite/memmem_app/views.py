@@ -138,6 +138,24 @@ class ScrapAllViewSet(viewsets.ModelViewSet):
         return Scrap.objects.filter(folder__user=self.kwargs['pk']).order_by('-scrap_id')
 
 
+class CheckScrapAPI(APIView):
+    def get(self, *args, **kwargs):
+        query = Scrap.objects.filter(folder__user=self.kwargs['pk']).order_by('-scrap_id')
+
+        del_list = []
+        for scrap in query:
+            response = requests.get(scrap.url)
+            print(response.status_code)
+            if response.status_code != 200:
+                del_list.append(scrap.title)
+                scrap.delete()
+
+        return JsonResponse(
+            {
+                'delete': del_list
+            }
+        )
+
 '''
 class ScrapViewSet(viewsets.ModelViewSet):
     queryset = Scrap.objects.all()
@@ -146,32 +164,6 @@ class ScrapViewSet(viewsets.ModelViewSet):
     def get_queryset(self, *args, **kwargs):
         #return Scrap.objects.filter(folder__user=self.kwargs['pk'], scrap_id=self.kwargs['scrap_pk'])
         return Scrap.objects.filter(scrap_id=self.kwargs['pk'])
-'''
-
-'''
-def classify_tag(tag):
-    tag_text = getattr(tag, 'tag_text')
-    tag_text = tag_text.replace('#', '')
-
-    classifier = tag_classifier(tag_text)
-    print(classifier)
-    if classifier is None:
-        pass
-    elif len(classifier) == 2:
-        if classifier[1] is None:
-            pass
-        else:
-            name = classifier[0]
-            latitude = classifier[1][0]
-            longitude = classifier[1][1]
-            Place.objects.create(name=name,
-                                 latitude=latitude,
-                                 longitude=longitude,
-                                 tag=tag)
-    elif len(classifier) == 1:
-        Food.objects.create(tag=tag)
-    else:
-        print('err')
 '''
 
 regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -201,14 +193,26 @@ class CreateScrapAPI(generics.GenericAPIView):
         # print(response)# (status_code)
 
         if Scrap.objects.filter(folder__user=user, url=url).exists():
-            return JsonResponse({'message': 'URL EXISTS'}, status=403)
+            return JsonResponse(
+                {
+                    'message': 'URL EXISTS',
+                    'status': '403',
+                    'scraps': {}
+                }
+            )
 
         if response.status_code == 200:
             # crawling = [URL, title, thumbnail, domain] + [tag list..]
             crawling = crawl_request(url)
 
             if crawling is None:
-                return JsonResponse({'message': 'CRAWLING EXCEPTION'}, status=403)
+                return JsonResponse(
+                    {
+                        'message': 'CRAWLING EXCEPTION',
+                        'status': '403',
+                        'scraps': {}
+                    }
+                )
             else:
                 crawl_list = []
                 tags_list = []
@@ -244,15 +248,23 @@ class CreateScrapAPI(generics.GenericAPIView):
                         tag_serializer.is_valid(raise_exception=True)
                         tag = tag_serializer.save()
 
-                return Response(
+                return JsonResponse(
                     {
+                        'message': 'SUCCESS',
+                        'status': '200',
                         'scrap': ScrapSerializer(
                             scrap, context=self.get_serializer_context()
                         ).data
                     }
                 )
         else:
-            return JsonResponse({'message': 'CANNOT ACCESS (NOT 200)'}, status=403)
+            return JsonResponse(
+                {
+                    'message': 'CANNOT ACCESS',
+                    'status': '403',
+                    'scrap': {}
+                }
+            )
 
 
 class CreateFolderAPI(generics.GenericAPIView):
@@ -273,12 +285,18 @@ class CreateFolderAPI(generics.GenericAPIView):
 
             return JsonResponse(
                 {
+                    'message': 'SUCCESS',
+                    'status': '200',
                     'folders': output_serializer.data
-                },
-                status=200
+                }
             )
         else:
-            return JsonResponse({'message': 'FOLDER NAME EXISTS'}, status=403)
+            return JsonResponse(
+                {
+                    'message': 'FOLDER NAME EXISTS',
+                    'status': '403',
+                    'folders': []
+                })
 
 
 class FolderDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -326,14 +344,21 @@ class UpdateScrap(generics.RetrieveUpdateDestroyAPIView):
 
             return JsonResponse(
                 {
+                    'message': 'SUCCESS',
+                    'status': '200',
                     'scrap': ScrapSerializer(
                         update, context=self.get_serializer_context()
                     ).data
-                },
-                status=200
+                }
             )
         except ObjectDoesNotExist:
-            return JsonResponse({})
+            return JsonResponse(
+                {
+                    'message': 'NOT EXISTS',
+                    'status': '404',
+                    'scrap': {}
+                }
+            )
 
 
 class ReCrawling(generics.GenericAPIView):
@@ -408,7 +433,12 @@ class UserLocationAPI(generics.GenericAPIView):
         scrap_list = list(set(scrap_list))
 
         if len(scrap_list) == 0:
-            return JsonResponse({})
+            return JsonResponse(
+                {
+                    'scrap': {}
+                },
+                status=204
+            )
 
         elif len(scrap_list) == 1:
             return JsonResponse(
@@ -445,7 +475,12 @@ class UserFoodAPI(APIView):
         scrap_list = list(set(scrap_list))
 
         if len(scrap_list) == 0:
-            return JsonResponse({})
+            return JsonResponse(
+                {
+                    'scrap': {}
+                },
+                status=204
+            )
 
         elif len(scrap_list) == 1:
             return JsonResponse(

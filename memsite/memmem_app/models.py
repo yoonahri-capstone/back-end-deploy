@@ -169,6 +169,9 @@ class Place(models.Model):
                             on_delete=models.CASCADE,
                             related_name="places")
 
+    def __str__(self):
+        return self.name
+
     def create(self, validated_data):
         return Place.objects.create(**validated_data)
 
@@ -178,6 +181,9 @@ class Food(models.Model):
     tag = models.ForeignKey(Tag,
                             on_delete=models.CASCADE,
                             related_name="food")
-    
+
+    def __str__(self):
+        return self.tag.tag_text
+
     def create(self, validated_data):
         return Food.objects.create(**validated_data)

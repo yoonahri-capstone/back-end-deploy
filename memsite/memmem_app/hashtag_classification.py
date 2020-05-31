@@ -42,7 +42,8 @@ def get_geocode(address):
         lat = html.select_one("location > lat").get_text()  # 위도
         lng = html.select_one("location > lng").get_text()  #경도
 
-        return float(lat), float(lng)
+        if float(lat) > 0 and float(lng) > 0:
+            return float(lat), float(lng)
     except Exception as e:
         print(e)
 

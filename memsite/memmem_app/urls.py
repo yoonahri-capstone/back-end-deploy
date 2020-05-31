@@ -11,6 +11,7 @@ from .views import CreateFolderAPI
 from .views import FolderDetail
 
 from .views import ScrapAllViewSet
+from .views import CheckScrapAPI
 #from .views import ScrapViewSet
 from .views import CreateScrapAPI
 from .views import ScrapDetail
@@ -48,6 +49,7 @@ urlpatterns = [
     path('users/<int:user>/folders/<int:pk>/', FolderDetail.as_view()),
     path('users/<int:pk>/folders/<int:folder_id>/listall/', folder_scraps, name="folder_scraps"),
     path('users/<int:pk>/listall/', user_scraps, name="user_scraps"),
+    path('users/<int:pk>/checkall/', CheckScrapAPI.as_view()),
 
     path('addfolder/', CreateFolderAPI.as_view()),
     path('addscrap/', CreateScrapAPI.as_view()),
