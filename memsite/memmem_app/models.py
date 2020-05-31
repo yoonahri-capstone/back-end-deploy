@@ -104,12 +104,6 @@ class Scrap(models.Model):
         return self.scrap_id
 
 
-class MemoManager(models.Manager):
-    def create_memo(self, scrap_id, memo):
-        new_memo = self.create(scrap_id, memo=memo)
-        return new_memo
-
-
 class Memo(models.Model):
     memo_id = models.AutoField(primary_key=True)
     scrap = models.ForeignKey(Scrap,
@@ -119,6 +113,9 @@ class Memo(models.Model):
 
     def __str__(self):
         return self.memo
+
+    def create(self, validated_data):
+        return Memo.objects.create(**validated_data)
 
 
 class Tag(models.Model):
@@ -140,7 +137,6 @@ class Tag(models.Model):
         tag_text = self.tag_text.replace("#", "")
         classifier = tag_classifier(tag_text)
 
-        print(classifier)
         if classifier is None:
             pass
         elif len(classifier) == 2:

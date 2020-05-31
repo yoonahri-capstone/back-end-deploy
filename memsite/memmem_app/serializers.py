@@ -118,13 +118,14 @@ class DefaultScrapListSerializer(serializers.ModelSerializer):
 class MemoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Memo
-        fields = ('memo_id', 'memo')
+        fields = ('memo',)
 
 
 class CreateMemoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Memo
-        fields = ('memo',)
+        fields = ('scrap',
+                  'memo')
 
     def create(self, validated_data):
         return Memo.objects.create(**validated_data)
@@ -149,7 +150,7 @@ class CreateTagSerializer(serializers.ModelSerializer):
 
 # scrap 1개 세부정보
 class ScrapSerializer(serializers.ModelSerializer):
-    memos = serializers.SerializerMethodField()
+    memos = MemoSerializer(many=True)
     #tags = serializers.SerializerMethodField()
     #memos = CreateMemoSerializer(read_only=True, many=True)
     tags = TagSerializer(many=True)
@@ -177,6 +178,7 @@ class ScrapSerializer(serializers.ModelSerializer):
 
 
 class UpdateScrapSerializer(serializers.ModelSerializer):
+    memos = MemoSerializer(many=True)
     tags = TagSerializer(many=True)
 
     class Meta:
@@ -184,24 +186,53 @@ class UpdateScrapSerializer(serializers.ModelSerializer):
         fields = ('scrap_id',
                   'folder',
                   'title',
+                  'memos',
                   'tags',
                   )
+
+    def get_memos(self, instance):
+        memo = instance.memos.all()
+        return MemoSerializer(memo, many=True).data
 
     def get_tags(self, instance):
         tag = instance.tags.all()
         return TagSerializer(tag, many=True).data
 
     def update(self, instance, validated_data):
+        # get memo list
+        memo_dict_list = validated_data.pop('memos')
+        memo_list = []
+        for i in range(0, len(memo_dict_list)):
+            memo_list.append(memo_dict_list[i].get('memo'))
+
+        # get tag list
         tag_dict_list = validated_data.pop('tags')
         text_list = []
         for i in range(0, len(tag_dict_list)):
             text_list.append(tag_dict_list[i].get('tag_text'))
 
+        # scrap update info
         scrap_id = validated_data.get('scrap_id', instance.scrap_id)
         instance.scrap_id = scrap_id
         instance.folder = validated_data.get('folder', instance.folder)
         instance.title = validated_data.get('title', instance.title)
         instance.save()
+
+        # add memo
+        for i in range(0, len(memo_dict_list)):
+            memo = memo_list[i]
+
+            if not Memo.objects.filter(scrap=scrap_id, memo=memo).exists():
+                memo_data = dict(scrap=scrap_id,
+                                 memo=memo)
+                memo_serializer = CreateMemoSerializer(data=memo_data)
+                memo_serializer.is_valid(raise_exception=True)
+                memo_serializer.save()
+
+        # delete memo
+        for i in Memo.objects.filter(scrap=scrap_id):
+            if i.memo not in memo_list:
+                i.delete()
 
         # add tag
         for i in range(0, len(tag_dict_list)):

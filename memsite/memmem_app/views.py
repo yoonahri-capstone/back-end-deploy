@@ -20,6 +20,7 @@ from .serializers import CreateFolderSerializer
 from .serializers import UpdateScrapSerializer
 from .serializers import FolderSerializer
 from .serializers import UpdateFolderSerializer
+from .serializers import FolderRequestSerializer
 from .serializers import IdListSerializer
 from .serializers import RecrawlingSerializer
 from .serializers import UserLocationSerializer
@@ -79,8 +80,8 @@ class LoginAPI(generics.GenericAPIView):
         return JsonResponse(
             {
                 'status': 200,
-                'id': UserSerializer(user, context=self.get_serializer_context()
-                                     ).data['id']
+                'id': UserSerializer(user, context=self.get_serializer_context()).data['id'],
+                'email' : UserSerializer(user, context=self.get_serializer_context()).data['email']
             }
         )
 
@@ -265,7 +266,6 @@ class CreateScrapAPI(generics.GenericAPIView):
                     'scrap': {}
                 }
             )
-
 
 class CreateFolderAPI(generics.GenericAPIView):
     serializer_class = FolderRequestSerializer
