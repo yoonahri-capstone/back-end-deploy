@@ -5,6 +5,8 @@ from .models import Folder
 from .models import Scrap
 from .models import Memo
 from .models import Tag
+from .models import Place
+from .models import Food
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -286,6 +288,64 @@ class CreateScrapSerializer(serializers.ModelSerializer):
         return TagSerializer(tag, many=True).data
 
 
+class AlarmPlaceSerializer(serializers.ModelSerializer):
+    memos = MemoSerializer(many=True)
+    tags = serializers.SerializerMethodField('get_tags')
+
+    class Meta:
+        model = Scrap
+        fields = ('scrap_id',
+                  'folder',
+                  'title',
+                  'url',
+                  'date',
+                  'thumbnail',
+                  'domain',
+                  'memos',
+                  'tags',
+                  )
+
+    def get_memos(self, instance):
+        memo = instance.memos.all()
+        return MemoSerializer(memo, many=True).data
+
+    def get_tags(self, instance):
+        places = Place.objects.filter(tag__scrap=instance).values_list('tag', flat=True)
+        tags = Tag.objects.none()
+        for i in range(len(places)):
+            tags |= Tag.objects.filter(tag_id=places[i])
+        return TagSerializer(tags, many=True).data
+
+
+class AlarmFoodSerializer(serializers.ModelSerializer):
+    memos = MemoSerializer(many=True)
+    tags = serializers.SerializerMethodField('get_tags')
+
+    class Meta:
+        model = Scrap
+        fields = ('scrap_id',
+                  'folder',
+                  'title',
+                  'url',
+                  'date',
+                  'thumbnail',
+                  'domain',
+                  'memos',
+                  'tags',
+                  )
+
+    def get_memos(self, instance):
+        memo = instance.memos.all()
+        return MemoSerializer(memo, many=True).data
+
+    def get_tags(self, instance):
+        foods = Food.objects.filter(tag__scrap=instance).values_list('tag', flat=True)
+        tags = Tag.objects.none()
+        for i in range(len(foods)):
+            tags |= Tag.objects.filter(tag_id=foods[i])
+        return TagSerializer(tags, many=True).data
+
+
 class IdSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scrap
@@ -309,3 +369,23 @@ class RecrawlingSerializer(serializers.ModelSerializer):
 class UserLocationSerializer(serializers.Serializer):
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
+
+
+class UsernameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username',)
+
+
+class CreateSharingSerializer(serializers.Serializer):
+    sharing_name = serializers.CharField()
+    users = UsernameSerializer(many=True)
+
+
+class SharingSerializer(serializers.ModelSerializer):
+    sharing_name = serializers.CharField(source='username')
+
+    class Meta:
+        model = User
+        fields = ('id',
+                  'sharing_name')

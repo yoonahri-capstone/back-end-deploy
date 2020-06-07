@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
-from .models import Profile, Folder, Scrap, Memo, Tag, Place, Food
+from .models import Profile, Folder, Scrap, Memo, Tag, Place, Food, Group
 
 from .serializers import UserSerializer
 from .serializers import CreateUserSerializer
@@ -24,6 +24,11 @@ from .serializers import FolderRequestSerializer
 from .serializers import IdListSerializer
 from .serializers import RecrawlingSerializer
 from .serializers import UserLocationSerializer
+from .serializers import UsernameSerializer
+from .serializers import CreateSharingSerializer
+from .serializers import SharingSerializer
+from .serializers import AlarmPlaceSerializer
+from .serializers import AlarmFoodSerializer
 
 # from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -40,7 +45,6 @@ from django.http import JsonResponse
 import requests
 import re
 import json
-import random
 import time
 
 
@@ -100,6 +104,7 @@ class UserAPI(generics.RetrieveAPIView):
 class MyUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 
 
 # Get User's Folder List
@@ -270,6 +275,7 @@ class CreateScrapAPI(generics.GenericAPIView):
                 }
             )
 
+
 class CreateFolderAPI(generics.GenericAPIView):
     serializer_class = FolderRequestSerializer
 
@@ -415,6 +421,25 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TagSerializer
 
 
+# search data
+class FindLocationAPI(generics.GenericAPIView):
+    queryset = Place.objects.all()
+    serializer_class = UserLocationSerializer
+
+    def post(self, request, *args, **kwargs):
+        places = Place.objects.filter(tag__scrap__folder__user=self.kwargs['pk'])
+
+        latitude = float(request.data['latitude'])
+        longitude = float(request.data['longitude'])
+
+        for place in places:
+            distance = get_distance(latitude, longitude, place.latitude, place.longitude)
+            if distance <= 1.5:
+                return JsonResponse({'status': 200})
+        # no data
+        return JsonResponse({'status': 204})
+
+
 class UserLocationAPI(generics.GenericAPIView):
     queryset = Place.objects.all()
     serializer_class = UserLocationSerializer
@@ -429,40 +454,28 @@ class UserLocationAPI(generics.GenericAPIView):
 
         for place in places:
             distance = get_distance(latitude, longitude, place.latitude, place.longitude)
-            if distance <= 1.0:
+            if distance <= 1.5:
                 scrap = Scrap.objects.get(scrap_id=place.tag.scrap.scrap_id)
                 scrap_list.append(scrap)
 
         scrap_list = list(set(scrap_list))
+        output_serializer = AlarmPlaceSerializer(scrap_list, many=True)
 
-        if len(scrap_list) == 0:
-            return JsonResponse(
-                {
-                    'scrap': {}
-                },
-                status=204
-            )
+        return JsonResponse(
+            {
+                'scraps': output_serializer.data
+            },
+            status=200
+        )
 
-        elif len(scrap_list) == 1:
-            return JsonResponse(
-                {
-                    'scrap': ScrapSerializer(
-                        scrap_list[0], context=self.get_serializer_context()
-                    ).data
-                },
-                status=200
-            )
 
-        else:
-            i = random.randint(0, len(scrap_list)-1)
-            return JsonResponse(
-                {
-                    'scrap': ScrapSerializer(
-                        scrap_list[i], context=self.get_serializer_context()
-                    ).data
-                },
-                status=200
-            )
+# search data
+class FindFoodAPI(generics.GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        if Food.objects.filter(tag__scrap__folder__user=self.kwargs['pk']).exists():
+            return JsonResponse({'status': 200})
+        else: # no data
+            return JsonResponse({'status': 204})
 
 
 class UserFoodAPI(APIView):
@@ -470,38 +483,72 @@ class UserFoodAPI(APIView):
         foods = Food.objects.filter(tag__scrap__folder__user=self.kwargs['pk'])
 
         scrap_list = []
-
         for food in foods:
             scrap = Scrap.objects.get(scrap_id=food.tag.scrap.scrap_id)
             scrap_list.append(scrap)
 
         scrap_list = list(set(scrap_list))
+        output_serializer = AlarmFoodSerializer(scrap_list, many=True)
 
-        if len(scrap_list) == 0:
-            return JsonResponse(
-                {
-                    'scrap': {}
-                },
-                status=204
-            )
+        return JsonResponse(
+            {
+                'scraps': output_serializer.data
+            },
+            status=200
+        )
 
-        elif len(scrap_list) == 1:
-            return JsonResponse(
-                {
-                    'scrap': ScrapSerializer(
-                        scrap_list[0]
-                    ).data
-                },
-                status=200
-            )
 
+class SearchUserAPI(generics.GenericAPIView):
+    serializer_class = UsernameSerializer
+
+    def post(self, request):
+        if User.objects.filter(username=request.data['username']).exists():
+            return JsonResponse({'status': 200})
         else:
-            i = random.randint(0, len(scrap_list)-1)
-            return JsonResponse(
-                {
-                    'scrap': ScrapSerializer(
-                        scrap_list[i]
-                    ).data
-                },
-                status=200
-            )
+            return JsonResponse({'status': 404})
+
+
+class CreateSharingAPI(generics.GenericAPIView):
+    serializer_class = CreateSharingSerializer
+
+    def post(self, request):
+        sharing = User.objects.create_user(request.data['sharing_name'],
+                                           email=None,
+                                           password=None)
+        sharing.save()
+
+        user_list = request.data['users']
+        for i in range(0, len(user_list)):
+            user = User.objects.get(username=user_list[i].get('username'))
+            group = Group.objects.create(sharing=sharing, member=user)
+            group.save()
+
+        Folder.objects.get_or_create(user=sharing, folder_key=0)
+
+        return JsonResponse({'status': 200})
+
+
+class SharingViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = SharingSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        user = User.objects.get(id=self.kwargs['pk'])
+        query = Group.objects.filter(member=user).values_list('sharing', flat=True)
+        q = User.objects.filter(id=self.kwargs['pk'])
+        for i in range(len(query)):
+            q |= User.objects.filter(id=query[i])
+        return q
+
+
+class SharingListViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = SharingSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        user = User.objects.get(id=self.kwargs['pk'])
+        query = Group.objects.filter(member=user).values_list('sharing', flat=True)
+        q = User.objects.none()
+        for i in range(len(query)):
+            q |= User.objects.filter(id=query[i])
+        return q

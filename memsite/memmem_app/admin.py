@@ -8,6 +8,7 @@ from .models import Memo
 from .models import Tag
 from .models import Place
 from .models import Food
+from .models import Group
 
 
 # Register your models here.
@@ -31,3 +32,4 @@ admin.site.register(Memo)
 admin.site.register(Tag)
 admin.site.register(Place)
 admin.site.register(Food)
+admin.site.register(Group)

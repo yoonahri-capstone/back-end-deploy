@@ -72,7 +72,8 @@ class Folder(models.Model):
     def save(self, *args, **kwargs):
         key = 0
         if not Folder.objects.filter(folder_id=self.folder_id).exists():
-            present_keys = Folder.objects.filter(user=self.user).order_by('-folder_key').values_list('folder_key', flat=True)
+            present_keys = Folder.objects.filter(user=self.user).order_by('-folder_key').values_list('folder_key',
+                                                                                                     flat=True)
             if present_keys:
                 key = present_keys[0] + 1
             self.folder_key = key
@@ -84,14 +85,14 @@ class Scrap(models.Model):
     folder = models.ForeignKey(Folder,
                                on_delete=models.CASCADE,
                                related_name='scraps')
-    #default_folder = models.ForeignKey(Folder,
+    # default_folder = models.ForeignKey(Folder,
     #                                   on_delete=models.CASCADE,
     #                                   related_name='list_all')
-    title = models.TextField()# char->text 바꿈
+    title = models.TextField()  # char->text 바꿈
     url = models.URLField(null=False)
     date = models.DateTimeField(auto_now_add=True,
                                 auto_now=False)
-    thumbnail = models.TextField(null=True)# char->text 바꿈
+    thumbnail = models.TextField(null=True)  # char->text 바꿈
     domain = models.CharField(max_length=50)
 
     def __str__(self):
@@ -183,3 +184,20 @@ class Food(models.Model):
 
     def create(self, validated_data):
         return Food.objects.create(**validated_data)
+
+
+class Group(models.Model):
+    group_id = models.AutoField(primary_key=True)
+    sharing = models.ForeignKey(User,
+                                on_delete=models.CASCADE,
+                                related_name="sharings")
+    member = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name="members")
+
+    def __str__(self):
+        group = self.sharing.username + ', ' + self.member.username
+        return group
+
+    def create(self, validated_data):
+        return Group.objects.create(**validated_data)
