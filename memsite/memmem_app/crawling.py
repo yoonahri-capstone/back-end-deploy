@@ -77,6 +77,8 @@ def url_crawl(soup):
 
 
 def youtube_hashtag():
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'lxml')
     all_hashtag = soup.find_all("a", {"class": "yt-simple-endpoint style-scope yt-formatted-string"})
     hashtag = [soup.find_all("a", {"class": "yt-simple-endpoint style-scope yt-formatted-string"})[n].string for n in range(0, len(all_hashtag))]
     # print(hashtag)

@@ -41,6 +41,7 @@ import requests
 import re
 import json
 import random
+import time
 
 
 # register user
@@ -204,7 +205,9 @@ class CreateScrapAPI(generics.GenericAPIView):
 
         if response.status_code == 200:
             # crawling = [URL, title, thumbnail, domain] + [tag list..]
+            start_time = time.time()
             crawling = crawl_request(url)
+            print("시간이다!!!!!!!: ", time.time() - start_time)
 
             if crawling is None:
                 return JsonResponse(
