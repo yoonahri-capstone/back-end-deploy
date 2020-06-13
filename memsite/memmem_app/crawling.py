@@ -44,7 +44,7 @@ def url_crawl(soup):
         except:
             pass
 
-    if domain == 'naver' and extracted.suffix == 'me' and extracted_current_url.subdomain == 'blog':
+    if domain == 'naver' and extracted_current_url.subdomain == 'blog': #and extracted.suffix == 'me'
         driver.switch_to.frame('mainFrame')
         html = driver.page_source
         soup = BeautifulSoup(html, 'lxml')
@@ -95,6 +95,8 @@ def naver_hashtag():
     all_hashtag = soup.find_all("span", {"class": "ell"})
     hashtag = [soup.find_all("span", {"class": "ell"})[n].string for n in range(0, len(all_hashtag))]
     # print(hashtag)
+    if None in hashtag:
+        hashtag = []
     driver.quit()
     return hashtag
 
@@ -156,8 +158,9 @@ def crawl_request(request):
     chrome_options.add_argument('headless')
     chrome_options.add_argument("lang=ko_KR")
     chrome_options.add_argument("disable-gpu")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-extensions")
     # chrome_options.add_argument("disable-infobars")
-    # chrome_options.add_argument("--disable-extensions")
     # prefs = {'profile.default_content_setting_values': {'cookies': 2, 'images': 2, 'plugins': 2, 'popups': 2,
     #                                                     'geolocation': 2, 'notifications': 2,
     #                                                     'auto_select_certificate': 2, 'fullscreen': 2, 'mouselock': 2,
