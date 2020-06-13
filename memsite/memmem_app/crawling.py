@@ -57,7 +57,10 @@ def url_crawl(soup):
             title = title.replace('\n', ' ')
 
         if domain == 'instagram':
-            thumbnail = soup.select_one(".KL4Bh").img['src']
+            try:
+                thumbnail = soup.select_one(".KL4Bh").img['src']
+            except:
+                thumbnail = soup.find("img", {"class": "_8jZFn"}).get("src")
         else:
             try:
                 thumbnail = soup.find("meta", {"property": "og:image"}).get("content")
@@ -82,6 +85,7 @@ def youtube_hashtag():
     all_hashtag = soup.find_all("a", {"class": "yt-simple-endpoint style-scope yt-formatted-string"})
     hashtag = [soup.find_all("a", {"class": "yt-simple-endpoint style-scope yt-formatted-string"})[n].string for n in range(0, len(all_hashtag))]
     # print(hashtag)
+    driver.quit()
     return hashtag
 
 
@@ -91,6 +95,7 @@ def naver_hashtag():
     all_hashtag = soup.find_all("span", {"class": "ell"})
     hashtag = [soup.find_all("span", {"class": "ell"})[n].string for n in range(0, len(all_hashtag))]
     # print(hashtag)
+    driver.quit()
     return hashtag
 
 
@@ -100,6 +105,7 @@ def facebook_hashtag():
     hashtag =[]
     for i in facebook_hashtag:
         hashtag.append('#' + i)
+    driver.quit()
     return hashtag
 
 
