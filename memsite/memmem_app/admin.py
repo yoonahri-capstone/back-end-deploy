@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from .models import Client
 from .models import Profile
 from .models import Folder
 from .models import Scrap
@@ -20,8 +21,15 @@ class ProfileInline(admin.StackedInline):
     verbose_name_plural = 'profile'
 
 
+class ClientInline(admin.StackedInline):
+    model = Client
+    can_delete = False
+    verbose_name_plural = 'client'
+
+
 class UserAdmin(BaseUserAdmin):
-    inlines = (ProfileInline, )
+    inlines = (ProfileInline,
+               ClientInline)
 
 
 admin.site.unregister(User)

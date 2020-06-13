@@ -47,6 +47,11 @@ class MyUser(AbstractBaseUser):
 '''
 
 
+class Client(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    reg_id = models.TextField(blank=True, null=True)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(blank=True, null=True, upload_to='memmem_app/media')

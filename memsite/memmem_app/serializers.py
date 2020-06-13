@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from .models import Client
 from .models import Folder
 from .models import Scrap
 from .models import Memo
@@ -33,6 +34,12 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
+
+
+class LoginDataSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+    token = serializers.CharField()
 
 
 class LoginUserSerializer(serializers.Serializer):
@@ -380,6 +387,14 @@ class UsernameSerializer(serializers.ModelSerializer):
 class CreateSharingSerializer(serializers.Serializer):
     sharing_name = serializers.CharField()
     users = UsernameSerializer(many=True)
+
+
+class JoinSharingSerializer(serializers.ModelSerializer):
+    sharing_name = serializers.CharField(source='username')
+
+    class Meta:
+        model = User
+        fields = ('sharing_name',)
 
 
 class SharingSerializer(serializers.ModelSerializer):

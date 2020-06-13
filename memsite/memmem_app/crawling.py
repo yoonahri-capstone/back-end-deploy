@@ -86,6 +86,8 @@ def youtube_hashtag():
 
 
 def naver_hashtag():
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'lxml')
     all_hashtag = soup.find_all("span", {"class": "ell"})
     hashtag = [soup.find_all("span", {"class": "ell"})[n].string for n in range(0, len(all_hashtag))]
     # print(hashtag)
