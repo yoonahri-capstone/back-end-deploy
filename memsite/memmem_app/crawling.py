@@ -189,6 +189,7 @@ def crawl_request(request):
 
     # driver_path = driver_path.replace('\\', '/')
     # driver = webdriver.Chrome(executable_path = driver_path, options=chrome_options)
+    chrome_options.add_argument("user-data-dir=Selenium")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
     driver = webdriver.Chrome(options=chrome_options)
     driver.implicitly_wait(20)
@@ -197,6 +198,7 @@ def crawl_request(request):
     URL = request
 
     global i
+
     if "instagram" in URL:
         if i == 0:
             print("실행했습니다아아아")
@@ -204,10 +206,10 @@ def crawl_request(request):
             id = ''
             password = ''
             id_input = driver.find_element_by_css_selector(
-                '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
+                    '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
             id_input.send_keys(id)
             password_input = driver.find_element_by_css_selector(
-                '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
+                    '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
             password_input.send_keys(password)
             password_input.submit()
             time.sleep(2)
