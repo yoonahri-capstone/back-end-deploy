@@ -20,6 +20,7 @@ from .views import ReCrawling
 
 from .views import CreateTagAPI
 from .views import TagDetail
+from .views import TagViewSet
 
 from .views import UserLocationAPI
 from .views import UserFoodAPI
@@ -48,6 +49,7 @@ user_scraps = ScrapAllViewSet.as_view({"get":"list"})
 
 sharings = SharingViewSet.as_view({"get":"list"})
 sharing_list = SharingListViewSet.as_view({"get":"list"})
+tag_list = TagViewSet.as_view({"get":"list"})
 
 urlpatterns = [
     path('auth/register/', RegistrationAPI.as_view()),
@@ -71,6 +73,7 @@ urlpatterns = [
     path('updatescrap/<int:pk>/', UpdateScrap.as_view()),
     path('recrawling/', ReCrawling.as_view()),
     path('tag/<int:pk>/', TagDetail.as_view()),
+    path('users/<int:pk>/taglist/',tag_list),
 
     path('location/user/<int:pk>/', UserLocationAPI.as_view()),
     path('food/user/<int:pk>/', UserFoodAPI.as_view()),

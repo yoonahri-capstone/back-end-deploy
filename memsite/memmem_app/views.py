@@ -1,5 +1,4 @@
-from rest_framework import viewsets, permissions, generics, status
-from rest_framework.views import APIView
+from rest_framework import viewsets, generics
 from django.contrib.auth.models import User
 from .models import Client, Profile, Folder, Scrap, Memo, Tag, Place, Food, Group
 
@@ -32,25 +31,18 @@ from .serializers import SharingSerializer
 from .serializers import AlarmPlaceSerializer
 from .serializers import AlarmFoodSerializer
 
-# from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
-from knox.models import AuthToken
 from .crawling import crawl_request
 from .hashtag_classification import get_distance
 from .notification import invitation_fcm
 from .notification import scrap_fcm
+
 from django.core.exceptions import ObjectDoesNotExist
-
 from django.http import JsonResponse
-
 import requests
 import re
-import json
+import random
 import time
-
 
 # register user
 class RegistrationAPI(generics.GenericAPIView):
@@ -216,7 +208,6 @@ class CreateScrapAPI(generics.GenericAPIView):
             start_time = time.time()
             crawling = crawl_request(url)
             print("시간이다!!!!!!!: ", time.time() - start_time)
-
             if crawling is None:
                 return JsonResponse(
                     {
@@ -438,6 +429,23 @@ class TagDetail(generics.RetrieveUpdateDestroyAPIView):
         return Tag.objects.filter(tag_id=self.kwargs['pk'])
 
 
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        places = Place.objects.filter(tag__scrap__folder__user=self.kwargs['pk']).order_by('?')[:5]
+        tags = Tag.objects.none()
+        for place in places:
+            tags |= Tag.objects.filter(places=place)
+
+        foods = Food.objects.filter(tag__scrap__folder__user=self.kwargs['pk']).order_by('?')[:5]
+        for food in foods:
+            tags |= Tag.objects.filter(food=food)
+
+        return tags
+
+
 # search data
 class FindLocationAPI(generics.GenericAPIView):
     queryset = Place.objects.all()
@@ -579,6 +587,17 @@ class JoinSharingAPI(generics.GenericAPIView):
         member = User.objects.get(id=kwargs['pk'])
         group = Group.objects.create(sharing=sharing, member=member)
         group.save()
+        return JsonResponse({'status': 200})
+
+    def delete(self, request, *args, **kwargs):
+        sharing = User.objects.get(username=request.data['sharing_name'])
+        member = User.objects.get(id=kwargs['pk'])
+        group = Group.objects.get(sharing=sharing, member=member)
+        group.delete()
+
+        if not Group.objects.filter(sharing=sharing).exists():
+            sharing.delete()
+
         return JsonResponse({'status': 200})
 
 

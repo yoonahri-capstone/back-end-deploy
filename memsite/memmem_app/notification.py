@@ -12,14 +12,9 @@ def invitation_fcm(ids, name):
         'Content-Type': 'application/json; UTF-8',
     }
 
-
     # 보낼 내용과 대상을 지정
     content = {
         'registration_ids': ids,
-        # 'notification': {
-        #     'title': '공유 저장소 초대',
-        #     'body': name + '에서 초대합니다'
-        # },
         'data':
             {
                 'type' : "invite",
@@ -39,14 +34,8 @@ def scrap_fcm(ids, name, imgurl):
         'Content-Type': 'application/json; UTF-8',
     }
 
-
     content = {
         'registration_ids': ids,
-        # 'notification': {
-        #     'title': '새 글 알림',
-        #     'body': name + '에 새 글이 공유되었습니다.',
-        #     'image': imgurl
-        # },
         'data':
             {
                 'type' : "upload",
