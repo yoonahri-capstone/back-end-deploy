@@ -9,7 +9,7 @@ import os
 # URL = "https://m.blog.naver.com/binhs9576/221788249228"
 # URL = "https://www.youtube.com/watch?v=2dNc8ROMVlw"
 
-global driver, URL, html, soup
+global driver, URL, html, soup, i = 0
 
 def url_crawl(soup):
     save_list = []
@@ -191,19 +191,22 @@ def crawl_request(request):
 
     # no error 가정
     URL = request
-
+    
     if "instagram" in URL:
-        driver.get("https://www.instagram.com/accounts/login/?hl=en")
-        id = ''
-        password = ''
-        id_input = driver.find_element_by_css_selector(
-            '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
-        id_input.send_keys(id)
-        password_input = driver.find_element_by_css_selector(
-            '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
-        password_input.send_keys(password)
-        password_input.submit()
-        time.sleep(2)
+        if i = 0:
+            driver.get("https://www.instagram.com/accounts/login/?hl=en")
+            id = ''
+            password = ''
+            id_input = driver.find_element_by_css_selector(
+                '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
+            id_input.send_keys(id)
+            password_input = driver.find_element_by_css_selector(
+                '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
+            password_input.send_keys(password)
+            password_input.submit()
+            time.sleep(2)
+            i += 1
+        
 
     driver.get(URL)
 
@@ -213,6 +216,7 @@ def crawl_request(request):
 
     except Exception as e:
         print(e)
+        return None
     
 
 
