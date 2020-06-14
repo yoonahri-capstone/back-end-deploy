@@ -9,7 +9,8 @@ import os
 # URL = "https://m.blog.naver.com/binhs9576/221788249228"
 # URL = "https://www.youtube.com/watch?v=2dNc8ROMVlw"
 
-global driver, URL, html, soup, i = 0
+global driver, URL, html, soup, i
+i=0
 
 def url_crawl(soup):
     save_list = []
@@ -191,9 +192,11 @@ def crawl_request(request):
 
     # no error 가정
     URL = request
-    
+    #i = 0
+    global i
     if "instagram" in URL:
-        if i = 0:
+        if i == 0:
+            print("실행했습니다아아아")
             driver.get("https://www.instagram.com/accounts/login/?hl=en")
             id = ''
             password = ''
