@@ -34,9 +34,10 @@ def url_crawl(soup):
 
         driver.find_element_by_name("username").send_keys(id)
         driver.find_element_by_name("password").send_keys(password)
-
+        driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/article/div/div[1]/div/form/div[4]/button').submit()
         time.sleep(1)
-        driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/article/div/div[1]/div/form/div[4]/button').click()
+        element = driver.find_element_by_xpath('//*[@id="react-root"]/section/main/div/article/div/div[1]/div/form/div[4]/button')
+        driver.execute_script("arguments[0].click();", element)
 
         driver.get(CURRENT_URL)
         html = driver.page_source
