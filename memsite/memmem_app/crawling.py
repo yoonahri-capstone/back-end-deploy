@@ -13,6 +13,7 @@ global driver, URL, html, soup, i
 i=0
 
 def url_crawl(soup):
+    global i
     save_list = []
     CURRENT_URL = driver.current_url
     extracted = tldextract.extract(URL)
@@ -44,6 +45,7 @@ def url_crawl(soup):
         # html = driver.page_source
 
         # soup = BeautifulSoup(html, 'lxml')
+        
         try:
             if "비공개 계정입니다" in soup.find('h2', {"class": "rkEop"}):
                 # print("비공개 계정입니다")
@@ -78,6 +80,7 @@ def url_crawl(soup):
         save_list.append(title)
         save_list.append(thumbnail)
         save_list.append(extracted.domain)
+        i += 1
 
     except Exception as e:
         print(e)
@@ -192,7 +195,7 @@ def crawl_request(request):
 
     # no error 가정
     URL = request
-    #i = 0
+
     global i
     if "instagram" in URL:
         if i == 0:
@@ -208,7 +211,6 @@ def crawl_request(request):
             password_input.send_keys(password)
             password_input.submit()
             time.sleep(2)
-            i += 1
         
 
     driver.get(URL)
