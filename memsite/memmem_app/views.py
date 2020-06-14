@@ -21,8 +21,6 @@ from .serializers import UpdateScrapSerializer
 from .serializers import FolderSerializer
 from .serializers import UpdateFolderSerializer
 from .serializers import FolderRequestSerializer
-from .serializers import IdListSerializer
-from .serializers import RecrawlingSerializer
 from .serializers import UserLocationSerializer
 from .serializers import UsernameSerializer
 from .serializers import CreateSharingSerializer
@@ -32,17 +30,19 @@ from .serializers import AlarmPlaceSerializer
 from .serializers import AlarmFoodSerializer
 
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from .crawling import crawl_request
 from .hashtag_classification import get_distance
 from .notification import invitation_fcm
 from .notification import scrap_fcm
+from .notification import delete_fcm
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 import requests
 import re
-import random
 import time
+
 
 # register user
 class RegistrationAPI(generics.GenericAPIView):
@@ -180,7 +180,6 @@ regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()
 
 # ADD new url
 class CreateScrapAPI(generics.GenericAPIView):
-    #serializer_class = CreateScrapSerializer
     serializer_class = UrlRequestSerializer
 
     def post(self, request, *args, **kwargs):
@@ -208,6 +207,7 @@ class CreateScrapAPI(generics.GenericAPIView):
             start_time = time.time()
             crawling = crawl_request(url)
             print("시간이다!!!!!!!: ", time.time() - start_time)
+
             if crawling is None:
                 return JsonResponse(
                     {
@@ -375,31 +375,38 @@ class UpdateScrap(generics.RetrieveUpdateDestroyAPIView):
             )
 
 
-class ReCrawling(generics.GenericAPIView):
-    queryset = Scrap.objects.all()
-    serializer_class = IdListSerializer
+class ReCrawling(APIView):
+    def get(self, *args, **kwargs):
+        user = User.objects.get(id=self.kwargs['pk'])
+        scraps = Scrap.objects.filter(folder__user=user)
+        title = []
+        ids = []
+        for scrap in scraps:
+            crawling = crawl_request(scrap.url)
 
-    def put(self, request):
-        for element in request.data['id_list']:
-            scrap = Scrap.objects.get(scrap_id=element['scrap_id'])
+            if crawling is None:
+                title_dict = {'title': scrap.title}
+                title.append(title_dict)
+                scrap.delete()
+            else:
+                thumbnail = crawling[2]
+                scrap.thumbnail = thumbnail
+                scrap.save()
 
-            response = requests.get(scrap.url)
-
-            if response.status_code == 200:
-                crawling = crawl_request(scrap.url)
-                crawl_list = crawling[0:4]
-
-                crawl_data = dict(scrap_id=scrap.scrap_id,
-                                  url=crawl_list[0],
-                                  thumbnail=crawl_list[2],
-                                  domain=crawl_list[3])
-
-                serializer = RecrawlingSerializer(scrap, data=crawl_data, partial=True)
-                serializer.is_valid(raise_exception=True)
-                update = serializer.save()
+        if len(title) > 0:
+            if Group.objects.filter(sharing=user).exists():
+                query = Group.objects.filter(sharing=user)
+                for i in range(len(query)):
+                    reg_id = Client.objects.get(user=query[i].member).reg_id
+                    ids.append(reg_id)
 
             else:
-                scrap.delete()
+                reg_id = Client.objects.get(user=user).reg_id
+                ids.append(reg_id)
+
+            print(ids)
+            print(title)
+            delete_fcm(ids, title)
 
         return JsonResponse({'status': 200})
 
@@ -573,7 +580,7 @@ class CreateSharingAPI(generics.GenericAPIView):
             member = User.objects.get(username=user_list[i].get('username'))
             reg_id = Client.objects.get(user=member).reg_id
             ids.append(reg_id)
-
+        print(ids)
         invitation_fcm(ids, request.data['sharing_name'])
 
         return JsonResponse({'status': 200})
@@ -598,7 +605,13 @@ class JoinSharingAPI(generics.GenericAPIView):
         if not Group.objects.filter(sharing=sharing).exists():
             sharing.delete()
 
-        return JsonResponse({'status': 200})
+        query = Group.objects.filter(member=member).values_list('sharing', flat=True)
+        q = User.objects.none()
+        for i in range(len(query)):
+            q |= User.objects.filter(id=query[i])
+        output_serializer = SharingSerializer(q, many=True)
+
+        return Response(output_serializer.data, status=200)
 
 
 class SharingViewSet(viewsets.ModelViewSet):

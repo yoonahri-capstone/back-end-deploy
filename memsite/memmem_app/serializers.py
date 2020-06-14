@@ -353,26 +353,6 @@ class AlarmFoodSerializer(serializers.ModelSerializer):
         return TagSerializer(tags, many=True).data
 
 
-class IdSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Scrap
-        fields = ('scrap_id',)
-
-
-class IdListSerializer(serializers.Serializer):
-    id_list = IdSerializer(many=True)
-
-
-class RecrawlingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Scrap
-        fields = ('scrap_id',
-                  'url',
-                  'thumbnail',
-                  'domain'
-                  )
-
-
 class UserLocationSerializer(serializers.Serializer):
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()

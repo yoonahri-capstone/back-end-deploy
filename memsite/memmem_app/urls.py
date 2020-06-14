@@ -71,7 +71,7 @@ urlpatterns = [
     path('addtag/', CreateTagAPI.as_view()),
     path('scrap/<int:pk>/', ScrapDetail.as_view()),
     path('updatescrap/<int:pk>/', UpdateScrap.as_view()),
-    path('recrawling/', ReCrawling.as_view()),
+    path('users/<int:pk>/recrawling/', ReCrawling.as_view()),
     path('tag/<int:pk>/', TagDetail.as_view()),
     path('users/<int:pk>/taglist/',tag_list),
 

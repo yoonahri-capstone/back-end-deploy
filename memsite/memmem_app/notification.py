@@ -17,7 +17,7 @@ def invitation_fcm(ids, name):
         'registration_ids': ids,
         'data':
             {
-                'type' : "invite",
+                'type': "invite",
                 'sharing': name
             }
     }
@@ -38,9 +38,29 @@ def scrap_fcm(ids, name, imgurl):
         'registration_ids': ids,
         'data':
             {
-                'type' : "upload",
+                'type': "upload",
                 'image': imgurl,
                 'sharing': name
+            }
+    }
+
+    requests.post(url, data=json.dumps(content), headers=headers)
+
+
+def delete_fcm(ids, title):
+    url = 'https://fcm.googleapis.com/fcm/send'
+
+    headers = {
+        'Authorization': 'key=AAAASoe0jvA:APA91bFVWB4yhPN1fyYyjiOoKOHxVQEsCyAGpgG1zrlvn_AuRKmxvXtcRJQQ9VYrj-KJN0_16kAA5ScMWL67Dss4D4C6LqxiE2PZdiQaVIu1BZn7HqDSGqhJlwr609BzXJGjZsMzGzYc',
+        'Content-Type': 'application/json; UTF-8',
+    }
+
+    content = {
+        'registration_ids': ids,
+        'data':
+            {
+                'type': "delete",
+                'scraps': title
             }
     }
 
