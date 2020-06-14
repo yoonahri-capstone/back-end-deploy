@@ -108,11 +108,16 @@ def naver_hashtag():
 
 
 def facebook_hashtag():
-    all_hashtag = soup.find('div', "_1dwg _1w_m _q7o").find_all("span", {"class": "_58cm"})
-    facebook_hashtag = [soup.find('div', "_1dwg _1w_m _q7o").find_all("span", {"class": "_58cm"})[n].string for n in range(0, len(all_hashtag))]
-    hashtag =[]
-    for i in facebook_hashtag:
-        hashtag.append('#' + i)
+    hashtag = []
+    try:
+        all_hashtag = soup.find('div', "_1dwg _1w_m _q7o").find_all("span", {"class": "_58cm"})
+        facebook_hashtag = [soup.find('div', "_1dwg _1w_m _q7o").find_all("span", {"class": "_58cm"})[n].string for n in range(0, len(all_hashtag))]
+
+        for i in facebook_hashtag:
+            hashtag.append('#' + i)
+    except:
+        pass
+    
     driver.quit()
     return hashtag
 
@@ -198,6 +203,7 @@ def crawl_request(request):
             '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
         password_input.send_keys(password)
         password_input.submit()
+        time.sleep(2)
 
     driver.get(URL)
 
