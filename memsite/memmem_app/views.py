@@ -251,7 +251,7 @@ class CreateScrapAPI(generics.GenericAPIView):
                         tag_serializer.is_valid(raise_exception=True)
                         tag = tag_serializer.save()
 
-                if Group.objects.filter(sharing=user).exists():
+                if request.data['fcm'] is True:
                     ids = []
                     query = Group.objects.filter(sharing=user)
                     for i in range(len(query)):
@@ -355,6 +355,21 @@ class UpdateScrap(generics.RetrieveUpdateDestroyAPIView):
             serializer = UpdateScrapSerializer(scrap, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             update = serializer.save()
+
+            if request.data['fcm'] == True:
+                ids = []
+                folder = Folder.objects.get(folder_id=request.data['folder'])
+                user = folder.user
+                sender = User.objects.get(id=request.data['id'])
+
+                query = Group.objects.filter(sharing=user)
+                for i in range(len(query)):
+                    reg_id = Client.objects.get(user=query[i].member).reg_id
+                    ids.append(reg_id)
+
+                reg_id = Client.objects.get(user=sender).reg_id
+                ids.remove(reg_id)
+                scrap_fcm(ids, user.username, scrap.thumbnail, scrap.scrap_id)
 
             return JsonResponse(
                 {

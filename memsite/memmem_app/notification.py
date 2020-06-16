@@ -26,7 +26,7 @@ def invitation_fcm(ids, name):
     requests.post(url, data=json.dumps(content), headers=headers)
 
 
-def scrap_fcm(ids, name, imgurl):
+def scrap_fcm(ids, name, imgurl, scrap_id):
     url = 'https://fcm.googleapis.com/fcm/send'
 
     headers = {
@@ -40,7 +40,8 @@ def scrap_fcm(ids, name, imgurl):
             {
                 'type': "upload",
                 'image': imgurl,
-                'sharing': name
+                'sharing': name,
+                'scrap_id': scrap_id
             }
     }
 

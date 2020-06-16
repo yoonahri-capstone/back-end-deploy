@@ -187,17 +187,24 @@ class ScrapSerializer(serializers.ModelSerializer):
 
 
 class UpdateScrapSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField('get_id')
     memos = MemoSerializer(many=True)
     tags = TagSerializer(many=True)
+    fcm = serializers.SerializerMethodField('get_fcm')
 
     class Meta:
         model = Scrap
-        fields = ('scrap_id',
+        fields = ('id',
+                  'scrap_id',
                   'folder',
                   'title',
                   'memos',
                   'tags',
+                  'fcm'
                   )
+
+    def get_id(self, instance):
+        return instance.folder.user.id
 
     def get_memos(self, instance):
         memo = instance.memos.all()
@@ -206,6 +213,9 @@ class UpdateScrapSerializer(serializers.ModelSerializer):
     def get_tags(self, instance):
         tag = instance.tags.all()
         return TagSerializer(tag, many=True).data
+
+    def get_fcm(self, instance):
+        return False
 
     def update(self, instance, validated_data):
         # get memo list
@@ -267,6 +277,7 @@ class UrlRequestSerializer(serializers.Serializer):
     #folder_key = serializers.IntegerField()
     folder_id = serializers.IntegerField()
     url = serializers.CharField()
+    fcm = serializers.BooleanField()
 
 
 class CreateScrapSerializer(serializers.ModelSerializer):
