@@ -3,6 +3,9 @@ from selenium import webdriver
 import tldextract
 import time
 import os
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # URL = "https://www.instagram.com/p/B-lp4yghq5F/?utm_source=ig_web_copy_link"
 # URL = "https://www.facebook.com/518619241508393/posts/2827717197265241/?sfnsn=mo"
@@ -76,11 +79,11 @@ def url_crawl(soup):
             except:
                 thumbnail = None
 
+        print(title)
         save_list.append(URL)
         save_list.append(title)
         save_list.append(thumbnail)
         save_list.append(extracted.domain)
-        i += 1
 
     except Exception as e:
         print(e)
@@ -197,25 +200,30 @@ def crawl_request(request):
     # no error 가정
     URL = request
 
-    global i
 
     if "instagram" in URL:
-        if i == 0:
-            print("실행했습니다아아아")
-            driver.get("https://www.instagram.com/accounts/login/?hl=en")
-            id = ''
-            password = ''
-            id_input = driver.find_element_by_css_selector(
-                    '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
-            id_input.send_keys(id)
-            password_input = driver.find_element_by_css_selector(
-                    '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
-            password_input.send_keys(password)
-            password_input.submit()
-            time.sleep(2)
-        
-
-    driver.get(URL)
+        # driver = webdriver.Chrome('./chromedriver_win32/chromedriver', options=chrome_options)
+        driver.get("https://www.instagram.com/accounts/login/?hl=en")
+        id = 'gold_ahhyeon'
+        password = 'rmadkgus98@'
+        id_input = driver.find_element_by_css_selector(
+            '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(2) > div > label > input')
+        id_input.send_keys(id)
+        password_input = driver.find_element_by_css_selector(
+            '#react-root > section > main > div > article > div > div:nth-child(1) > div > form > div:nth-child(3) > div > label > input')
+        password_input.send_keys(password)
+        password_input.submit()
+        time.sleep(2)
+        driver.get(URL)
+        print(driver.page_source)
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.invisibility_of_element((By.CLASS_NAME, "Kj7h1  yJx9G"))
+            )
+        except Exception as e:
+            print("에러가 이거다 이것들아", e)
+    else:
+        driver.get(URL)
 
     try:
         html = driver.page_source
