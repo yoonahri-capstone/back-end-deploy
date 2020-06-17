@@ -260,7 +260,7 @@ class CreateScrapAPI(generics.GenericAPIView):
 
                     reg_id = Client.objects.get(user=sender).reg_id
                     ids.remove(reg_id)
-                    scrap_fcm(ids, user.username, scrap.thumbnail)
+                    scrap_fcm(ids, user.username, scrap.thumbnail, scrap.scrap_id)
 
                 return JsonResponse(
                     {
