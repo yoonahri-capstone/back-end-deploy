@@ -8,7 +8,7 @@ colorama==0.4.3
 cryptography==2.9.2
 Django==3.0.6
 django-rest-knox==4.1.0
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 dynaconf==2.2.3
 hvac==0.10.2
 idna==2.9
