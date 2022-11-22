@@ -14,7 +14,7 @@ hvac==0.10.2
 idna==2.9
 knox==0.0.17
 loguru==0.5.0
-Pillow==7.1.2
+Pillow==9.3.0
 pycparser==2.20
 python-box==3.4.6
 python-dotenv==0.13.0
